@@ -5,11 +5,18 @@ import Hero from '@/components/Hero';
 import BettingDashboard from '@/components/BettingDashboard';
 import LiveOdds from '@/components/LiveOdds';
 import BettingSlip from '@/components/BettingSlip';
+import BetHistory from '@/components/BetHistory';
+import Favorites from '@/components/Favorites';
 import { Button } from '@/components/ui/button';
-import { TrendingUp, Users, Zap } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { TrendingUp, Users, Zap, History, Star } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 const Index = () => {
   const [selectedBets, setSelectedBets] = useState([]);
+  const [activeTab, setActiveTab] = useState('odds');
+  const [user, setUser] = useState(null);
+  const { toast } = useToast();
 
   const addToBettingSlip = (bet) => {
     setSelectedBets(prev => {
@@ -17,18 +24,70 @@ const Index = () => {
       if (exists) return prev;
       return [...prev, bet];
     });
+    toast({
+      title: "Bet Added",
+      description: `${bet.selection} added to betting slip`,
+    });
   };
 
   const removeBet = (betId) => {
     setSelectedBets(prev => prev.filter(bet => bet.id !== betId));
   };
 
+  const handleLogin = (email: string, password: string) => {
+    // Simulate login
+    const mockUser = {
+      username: email.split('@')[0],
+      email,
+      balance: 1250.50,
+      level: 'Gold',
+      totalBets: 42,
+      winRate: 67.3
+    };
+    setUser(mockUser);
+    toast({
+      title: "Welcome back!",
+      description: `Logged in as ${mockUser.username}`,
+    });
+  };
+
+  const handleSignup = (email: string, password: string, username: string) => {
+    // Simulate signup
+    const mockUser = {
+      username,
+      email,
+      balance: 100.00, // Welcome bonus
+      level: 'Bronze',
+      totalBets: 0,
+      winRate: 0
+    };
+    setUser(mockUser);
+    toast({
+      title: "Welcome to StakeBet!",
+      description: `Account created for ${username}. Welcome bonus: $100`,
+    });
+  };
+
+  const handleLogout = () => {
+    setUser(null);
+    setSelectedBets([]);
+    toast({
+      title: "Logged out",
+      description: "See you next time!",
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background gradient-bg">
-      <Header />
+      <Header 
+        user={user}
+        onLogin={handleLogin}
+        onSignup={handleSignup}
+        onLogout={handleLogout}
+      />
       
-      {/* Hero Section */}
-      <Hero />
+      {/* Hero Section - Only show if not logged in */}
+      {!user && <Hero />}
 
       {/* Stats Section */}
       <section className="py-16 px-4">
@@ -62,9 +121,47 @@ const Index = () => {
               <BettingDashboard />
             </div>
 
-            {/* Middle Column - Live Odds */}
+            {/* Middle Column - Main Content with Tabs */}
             <div className="lg:col-span-2">
-              <LiveOdds onAddBet={addToBettingSlip} />
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid w-full grid-cols-3">
+                  <TabsTrigger value="odds">Live Odds</TabsTrigger>
+                  <TabsTrigger value="favorites" disabled={!user}>
+                    <Star className="w-4 h-4 mr-1" />
+                    Favorites
+                  </TabsTrigger>
+                  <TabsTrigger value="history" disabled={!user}>
+                    <History className="w-4 h-4 mr-1" />
+                    History
+                  </TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="odds" className="mt-6">
+                  <LiveOdds onAddBet={addToBettingSlip} />
+                </TabsContent>
+                
+                <TabsContent value="favorites" className="mt-6">
+                  {user ? (
+                    <Favorites onAddBet={addToBettingSlip} />
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <Star className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Please log in to view your favorites</p>
+                    </div>
+                  )}
+                </TabsContent>
+                
+                <TabsContent value="history" className="mt-6">
+                  {user ? (
+                    <BetHistory />
+                  ) : (
+                    <div className="text-center py-12 text-muted-foreground">
+                      <History className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                      <p>Please log in to view your bet history</p>
+                    </div>
+                  )}
+                </TabsContent>
+              </Tabs>
             </div>
 
             {/* Right Column - Betting Slip */}

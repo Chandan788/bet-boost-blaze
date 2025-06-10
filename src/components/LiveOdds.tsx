@@ -1,8 +1,7 @@
-
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, TrendingUp, TrendingDown, Circle } from 'lucide-react';
+import { Clock, TrendingUp, TrendingDown, Circle, Heart, Star } from 'lucide-react';
 
 interface Match {
   id: number;
@@ -76,6 +75,7 @@ const mockMatches: Match[] = [
 const LiveOdds = ({ onAddBet }) => {
   const [matches, setMatches] = useState<Match[]>(mockMatches);
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [favorites, setFavorites] = useState<number[]>([]);
 
   // Simulate odds updates
   useEffect(() => {
@@ -106,6 +106,14 @@ const LiveOdds = ({ onAddBet }) => {
       stake: 0
     };
     onAddBet(bet);
+  };
+
+  const toggleFavorite = (matchId: number) => {
+    setFavorites(prev => 
+      prev.includes(matchId) 
+        ? prev.filter(id => id !== matchId)
+        : [...prev, matchId]
+    );
   };
 
   return (
@@ -153,9 +161,19 @@ const LiveOdds = ({ onAddBet }) => {
                   </Badge>
                 )}
               </div>
-              <div className="flex items-center text-sm text-muted-foreground">
-                <Clock className="w-4 h-4 mr-1" />
-                {match.status === 'live' && match.minute ? `${match.minute}'` : match.time}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center text-sm text-muted-foreground">
+                  <Clock className="w-4 h-4 mr-1" />
+                  {match.status === 'live' && match.minute ? `${match.minute}'` : match.time}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className={`h-8 w-8 ${favorites.includes(match.id) ? 'text-warning' : 'text-muted-foreground'} hover:text-warning`}
+                  onClick={() => toggleFavorite(match.id)}
+                >
+                  <Heart className={`w-4 h-4 ${favorites.includes(match.id) ? 'fill-current' : ''}`} />
+                </Button>
               </div>
             </div>
 
