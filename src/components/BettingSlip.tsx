@@ -6,10 +6,10 @@ import { Badge } from '@/components/ui/badge';
 import { Trash2, Calculator, DollarSign, TrendingUp } from 'lucide-react';
 
 const BettingSlip = ({ selectedBets, onRemoveBet }) => {
-  const [stakes, setStakes] = useState({});
+  const [stakes, setStakes] = useState<Record<string, number>>({});
   const [betType, setBetType] = useState('single'); // single, accumulator
 
-  const updateStake = (betId, value) => {
+  const updateStake = (betId: string, value: string) => {
     setStakes(prev => ({
       ...prev,
       [betId]: parseFloat(value) || 0
@@ -18,7 +18,7 @@ const BettingSlip = ({ selectedBets, onRemoveBet }) => {
 
   const getTotalStake = () => {
     if (betType === 'single') {
-      return Object.values(stakes).reduce((sum, stake) => sum + stake, 0);
+      return Object.values(stakes).reduce((sum: number, stake: number) => sum + stake, 0);
     } else {
       // For accumulator, single stake for all bets
       return stakes.accumulator || 0;
@@ -173,9 +173,9 @@ const BettingSlip = ({ selectedBets, onRemoveBet }) => {
                     onChange={(e) => updateStake('accumulator', e.target.value)}
                     className="text-sm"
                   />
-                  {stakes.accumulator > 0 && (
+                  {(stakes.accumulator || 0) > 0 && (
                     <div className="text-xs text-muted-foreground mt-2">
-                      Potential return: ${(stakes.accumulator * selectedBets.reduce((total, bet) => total * bet.odds, 1)).toFixed(2)}
+                      Potential return: ${((stakes.accumulator || 0) * selectedBets.reduce((total, bet) => total * bet.odds, 1)).toFixed(2)}
                     </div>
                   )}
                 </div>
@@ -231,9 +231,9 @@ const BettingSlip = ({ selectedBets, onRemoveBet }) => {
                 className="text-xs"
                 onClick={() => {
                   if (betType === 'single') {
-                    selectedBets.forEach(bet => updateStake(bet.id, amount));
+                    selectedBets.forEach(bet => updateStake(bet.id, amount.toString()));
                   } else {
-                    updateStake('accumulator', amount);
+                    updateStake('accumulator', amount.toString());
                   }
                 }}
               >

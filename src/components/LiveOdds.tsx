@@ -4,7 +4,24 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Clock, TrendingUp, TrendingDown, Circle } from 'lucide-react';
 
-const mockMatches = [
+interface Match {
+  id: number;
+  sport: string;
+  league: string;
+  homeTeam: string;
+  awayTeam: string;
+  homeOdds: number;
+  drawOdds?: number;
+  awayOdds: number;
+  time: string;
+  status: string;
+  homeScore?: number;
+  awayScore?: number;
+  minute?: number;
+  set?: string;
+}
+
+const mockMatches: Match[] = [
   {
     id: 1,
     sport: 'Football',
@@ -29,9 +46,7 @@ const mockMatches = [
     homeOdds: 2.10,
     awayOdds: 1.75,
     time: '20:00',
-    status: 'upcoming',
-    homeScore: null,
-    awayScore: null
+    status: 'upcoming'
   },
   {
     id: 3,
@@ -59,7 +74,7 @@ const mockMatches = [
 ];
 
 const LiveOdds = ({ onAddBet }) => {
-  const [matches, setMatches] = useState(mockMatches);
+  const [matches, setMatches] = useState<Match[]>(mockMatches);
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   // Simulate odds updates
@@ -80,7 +95,7 @@ const LiveOdds = ({ onAddBet }) => {
     ? matches 
     : matches.filter(match => match.status === selectedFilter);
 
-  const handleAddBet = (match, type, odds) => {
+  const handleAddBet = (match: Match, type: string, odds: number) => {
     const bet = {
       id: `${match.id}-${type}`,
       matchId: match.id,

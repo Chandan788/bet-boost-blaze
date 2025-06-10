@@ -1,7 +1,7 @@
 
 import { Button } from '@/components/ui/button';
 import { 
-  Football, 
+  Goal, 
   Gamepad2, 
   Radio, 
   Trophy, 
@@ -15,7 +15,7 @@ const categories = [
   {
     id: 'sports',
     name: 'Sports',
-    icon: Football,
+    icon: Goal,
     count: 1247,
     color: 'text-neon-green',
     bgColor: 'bg-green-500/20'
